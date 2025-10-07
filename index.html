@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IRIS PAY</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fff;
+      color: #333;
+    }
+
+    header {
+      background: linear-gradient(45deg, #b87333, #ff4500);
+      color: #fff;
+      text-align: center;
+      padding: 20px 0;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      font-weight: bold;
+      font-size: 24px;
+    }
+
+    .screen {
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    input {
+      width: 80%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 2px solid #b87333;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px 20px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(45deg, #ff4500, #b87333);
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: linear-gradient(45deg, #b87333, #ff6347);
+    }
+
+    .message {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #d32f2f;
+    }
+
+    #otpInputs input {
+      width: 40px;
+      margin: 5px;
+      font-size: 20px;
+      text-align: center;
+      border: 2px solid #b87333;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    IRIS PAY
+  </header>
+
+  <!-- Login Screen -->
+  <div id="loginScreen" class="screen">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input type="text" id="phone" placeholder="Phone Number">
+      <input type="password" id="password" placeholder="Password">
+      <button type="submit">Login</button>
+    </form>
+    <div id="loginMessage" class="message"></div>
+  </div>
+
+  <!-- OTP Screen -->
+  <div id="otpScreen" class="screen" style="display:none;">
+    <h2>Enter OTP</h2>
+    <p>An OTP has been sent to your phone</p>
+    <div id="otpInputs">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+    </div>
+    <button id="verifyOtp">Verify OTP</button>
+    <div id="otpMessage" class="message"></div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const loginMessage = document.getElementById("loginMessage");
+    const loginScreen = document.getElementById("loginScreen");
+    const otpScreen = document.getElementById("otpScreen");
+    const verifyOtpBtn = document.getElementById("verifyOtp");
+    const otpInputs = document.querySelectorAll("#otpInputs input");
+
+    // Simulated backend users
+    const users = {
+      "08123456789": { password: "password123", firstTime: true }
+    };
+
+    // Audio feedback
+    const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
+    const errorSound = new Audio("https://www.soundjay.com/buttons/sounds/button-10.mp3");
+
+    // Handle login form
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const phone = document.getElementById("phone").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!phone || !password) {
+        loginMessage.innerText = "Please enter your phone number and password.";
+        errorSound.play();
+        return;
+      }
+
+      if (users[phone] && users[phone].password === password) {
+        if (users[phone].firstTime) {
+          loginScreen.style.display = "none";
+          otpScreen.style.display = "block";
+          loginMessage.innerText = "";
+
+
+sendOtp(phone);
+          successSound.play();
+        } else {
+          loginMessage.innerText = "Login successful!";
+          successSound.play();
+        }
+      } else {
+        loginMessage.innerText = "Invalid phone number or password.";
+        errorSound.play();
+      }
+    });
+
+    // Simulate sending OTP
+    function sendOtp(phone) {
+      console.log("OTP sent to:", phone);
+    }
+
+    // Verify OTP
+    verifyOtpBtn.addEventListener("click", () => {
+      let otp = "";
+      otpInputs.forEach(input => otp += input.value);
+
+      if (otp.length < 6) {
+        document.getElementById("otpMessage").innerText = "Enter the complete 6-digit OTP.";
+        errorSound.play();
+        return;
+      }
+
+      if (otp === "123456") { // demo OTP
+        document.getElementById("otpMessage").innerText = "OTP verified! Welcome to IRIS PAY.";
+        otpScreen.style.display = "none";
+        loginScreen.style.display = "block";
+        successSound.play();
+      } else {
+        document.getElementById("otpMessage").innerText = "Incorrect OTP. Try again.";
+        errorSound.play();
+      }
+    });
+  </script>
+</body>
+</html>
