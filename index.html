@@ -124,6 +124,7 @@
   </div>
 
   <script>
+    // Elements
     const loginScreen = document.getElementById("loginScreen");
     const signUpScreen = document.getElementById("signUpScreen");
     const otpScreen = document.getElementById("otpScreen");
@@ -141,7 +142,7 @@
     const otpMessage = document.getElementById("otpMessage");
 
 
-// Audio feedback
+// Audio
     const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
     const errorSound = new Audio("https://www.soundjay.com/buttons/sounds/button-10.mp3");
 
@@ -161,7 +162,7 @@
       signUpMessage.innerText = "";
     });
 
-    // Handle Sign-Up
+    // Sign-Up handler
     signUpForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const phone = document.getElementById("signUpPhone").value.trim();
@@ -179,18 +180,16 @@
         return;
       }
 
-      // Register user
       users[phone] = { password: password, firstTime: true };
       signUpMessage.innerText = "Account created! Please verify OTP.";
       successSound.play();
 
-      // Go to OTP
       signUpScreen.style.display = "none";
       otpScreen.style.display = "block";
       sendOtp(phone);
     });
 
-    // Handle Login
+    // Login handler
     loginForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const phone = document.getElementById("loginPhone").value.trim();
@@ -198,4 +197,53 @@
 
       if (!phone || !password) {
         loginMessage.innerText = "Please enter your phone number and password.";
-        errorSound.play
+        errorSound.play();
+        return;
+      }
+
+      if (users[phone] && users[phone].password === password) {
+        if (users[phone].firstTime) {
+          loginScreen.style.display = "none";
+          otpScreen.style.display = "block";
+          loginMessage.innerText = "";
+          sendOtp(phone);
+          successSound.play();
+        } else {
+          loginMessage.innerText = "Login successful!";
+          successSound.play();
+        }
+      } else {
+        loginMessage.innerText = "Invalid phone number or password.";
+        errorSound.play();
+      }
+    });
+
+    // Simulate sending OTP
+    function sendOtp(phone) {
+      console.log("OTP sent to:", phone);
+    }
+
+    // Verify OTP
+    verifyOtpBtn.addEventListener("click", () => {
+      let otp = "";
+      otpInputs.forEach(input => otp += input.value);
+
+      if (otp.length < 6) {
+        otpMessage.innerText = "Enter the complete 6-digit OTP.";
+        errorSound.play();
+        return;
+      }
+
+      if (otp === "123456") {
+        otpMessage.innerText = "OTP verified! Welcome to IRIS PAY.";
+        otpScreen.style.display = "none";
+        loginScreen.style.display = "block";
+        successSound.play();
+      } else {
+        otpMessage.innerText = "Incorrect OTP. Try again.";
+        errorSound.play();
+      }
+    });
+  </script>
+</body>
+</html>
