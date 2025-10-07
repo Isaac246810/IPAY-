@@ -124,125 +124,127 @@
   </div>
 
   <script>
-    // Elements
-    const loginScreen = document.getElementById("loginScreen");
-    const signUpScreen = document.getElementById("signUpScreen");
-    const otpScreen = document.getElementById("otpScreen");
+    document.addEventListener("DOMContentLoaded", () => {
+      // Elements
+      const loginScreen = document.getElementById("loginScreen");
+      const signUpScreen = document.getElementById("signUpScreen");
+      const otpScreen = document.getElementById("otpScreen");
 
-    const goToSignUpLink = document.getElementById("goToSignUp");
-    const goToLoginLink = document.getElementById("goToLogin");
+      const goToSignUpLink = document.getElementById("goToSignUp");
+      const goToLoginLink = document.getElementById("goToLogin");
 
-    const loginForm = document.getElementById("loginForm");
-    const signUpForm = document.getElementById("signUpForm");
+      const loginForm = document.getElementById("loginForm");
+      const signUpForm = document.getElementById("signUpForm");
 
-    const loginMessage = document.getElementById("loginMessage");
-    const signUpMessage = document.getElementById("signUpMessage");
-    const verifyOtpBtn = document.getElementById("verifyOtp");
-    const otpInputs = document.querySelectorAll("#otpInputs input");
-    const otpMessage = document.getElementById("otpMessage");
+      const loginMessage = document.getElementById("loginMessage");
+      const signUpMessage = document.getElementById("signUpMessage");
+      const verifyOtpBtn = document.getElementById("verifyOtp");
+      const otpInputs = document.querySelectorAll("#otpInputs input");
+      const otpMessage = document.getElementById("otpMessage");
 
 
 // Audio
-    const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
-    const errorSound = new Audio("https://www.soundjay.com/buttons/sounds/button-10.mp3");
+      const successSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
+      const errorSound = new Audio("https://www.soundjay.com/buttons/sounds/button-10.mp3");
 
-    // Simulated backend users
-    const users = {};
+      // Simulated backend users
+      const users = {};
 
-    // Switch screens
-    goToSignUpLink.addEventListener("click", () => {
-      loginScreen.style.display = "none";
-      signUpScreen.style.display = "block";
-      loginMessage.innerText = "";
-    });
+      // Switch screens
+      goToSignUpLink.addEventListener("click", () => {
+        loginScreen.style.display = "none";
+        signUpScreen.style.display = "block";
+        loginMessage.innerText = "";
+      });
 
-    goToLoginLink.addEventListener("click", () => {
-      signUpScreen.style.display = "none";
-      loginScreen.style.display = "block";
-      signUpMessage.innerText = "";
-    });
+      goToLoginLink.addEventListener("click", () => {
+        signUpScreen.style.display = "none";
+        loginScreen.style.display = "block";
+        signUpMessage.innerText = "";
+      });
 
-    // Sign-Up handler
-    signUpForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const phone = document.getElementById("signUpPhone").value.trim();
-      const password = document.getElementById("signUpPassword").value;
+      // Sign-Up handler
+      signUpForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const phone = document.getElementById("signUpPhone").value.trim();
+        const password = document.getElementById("signUpPassword").value;
 
-      if (!phone || !password) {
-        signUpMessage.innerText = "Please enter phone number and password.";
-        errorSound.play();
-        return;
+        if (!phone || !password) {
+          signUpMessage.innerText = "Please enter phone number and password.";
+          errorSound.play();
+          return;
+        }
+
+        if (users[phone]) {
+          signUpMessage.innerText = "Phone number already exists.";
+          errorSound.play();
+          return;
+        }
+
+        users[phone] = { password: password, firstTime: true };
+        signUpMessage.innerText = "Account created! Please verify OTP.";
+        successSound.play();
+
+        signUpScreen.style.display = "none";
+        otpScreen.style.display = "block";
+        sendOtp(phone);
+      });
+
+      // Login handler
+      loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const phone = document.getElementById("loginPhone").value.trim();
+        const password = document.getElementById("loginPassword").value;
+
+        if (!phone || !password) {
+          loginMessage.innerText = "Please enter your phone number and password.";
+          errorSound.play();
+          return;
+        }
+
+        if (users[phone] && users[phone].password === password) {
+          if (users[phone].firstTime) {
+            loginScreen.style.display = "none";
+            otpScreen.style.display = "block";
+            loginMessage.innerText = "";
+            sendOtp(phone);
+            successSound.play();
+          } else {
+            loginMessage.innerText = "Login successful!";
+            successSound.play();
+          }
+        } else {
+          loginMessage.innerText = "Invalid phone number or password.";
+          errorSound.play();
+        }
+      });
+
+      // Simulate sending OTP
+      function sendOtp(phone) {
+        console.log("OTP sent to:", phone);
       }
 
-      if (users[phone]) {
-        signUpMessage.innerText = "Phone number already exists.";
-        errorSound.play();
-        return;
-      }
+      // Verify OTP
+      verifyOtpBtn.addEventListener("click", () => {
+        let otp = "";
+        otpInputs.forEach(input => otp += input.value);
 
-      users[phone] = { password: password, firstTime: true };
-      signUpMessage.innerText = "Account created! Please verify OTP.";
-      successSound.play();
+        if (otp.length < 6) {
+          otpMessage.innerText = "Enter the complete 6-digit OTP.";
+          errorSound.play();
+          return;
+        }
 
-      signUpScreen.style.display = "none";
-      otpScreen.style.display = "block";
-      sendOtp(phone);
-    });
-
-    // Login handler
-    loginForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const phone = document.getElementById("loginPhone").value.trim();
-      const password = document.getElementById("loginPassword").value;
-
-      if (!phone || !password) {
-        loginMessage.innerText = "Please enter your phone number and password.";
-        errorSound.play();
-        return;
-      }
-
-      if (users[phone] && users[phone].password === password) {
-        if (users[phone].firstTime) {
-          loginScreen.style.display = "none";
-          otpScreen.style.display = "block";
-          loginMessage.innerText = "";
-          sendOtp(phone);
+        if (otp === "123456") {
+          otpMessage.innerText = "OTP verified! Welcome to IRIS PAY.";
+          otpScreen.style.display = "none";
+          loginScreen.style.display = "block";
           successSound.play();
         } else {
-          loginMessage.innerText = "Login successful!";
-          successSound.play();
+          otpMessage.innerText = "Incorrect OTP. Try again.";
+          errorSound.play();
         }
-      } else {
-        loginMessage.innerText = "Invalid phone number or password.";
-        errorSound.play();
-      }
-    });
-
-    // Simulate sending OTP
-    function sendOtp(phone) {
-      console.log("OTP sent to:", phone);
-    }
-
-    // Verify OTP
-    verifyOtpBtn.addEventListener("click", () => {
-      let otp = "";
-      otpInputs.forEach(input => otp += input.value);
-
-      if (otp.length < 6) {
-        otpMessage.innerText = "Enter the complete 6-digit OTP.";
-        errorSound.play();
-        return;
-      }
-
-      if (otp === "123456") {
-        otpMessage.innerText = "OTP verified! Welcome to IRIS PAY.";
-        otpScreen.style.display = "none";
-        loginScreen.style.display = "block";
-        successSound.play();
-      } else {
-        otpMessage.innerText = "Incorrect OTP. Try again.";
-        errorSound.play();
-      }
+      });
     });
   </script>
 </body>
