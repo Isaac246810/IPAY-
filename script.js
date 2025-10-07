@@ -1,126 +1,89 @@
-nav.wallet.addEventListener('click', () => showSection('wallet'));
-nav.card.addEventListener('click', () => showSection('card'));
-nav.more.addEventListener('click', () => showSection('more'));
+document.addEventListener("DOMContentLoaded", () => {
+const loginScreen=document.getElementById("loginScreen");
+const signUpScreen=document.getElementById("signUpScreen");
+const appScreen=document.getElementById("appScreen");
+const goToSignUpLink=document.getElementById("goToSignUp");
+const goToLoginLink=document.getElementById("goToLogin");
+const loginForm=document.getElementById("loginForm");
+const signUpForm=document.getElementById("signUpForm");
+const loginMessage=document.getElementById("loginMessage");
+const signUpMessage=document.getElementById("signUpMessage");
+const loginPhoneInput=document.getElementById("loginPhone");
+const rememberMe=document.getElementById("rememberMe");
+const loginPassword=document.getElementById("loginPassword");
+const toggleLoginPassword=document.getElementById("toggleLoginPassword");
+const signUpPassword=document.getElementById("signUpPassword");
+const toggleSignUpPassword=document.getElementById("toggleSignUpPassword");
+const navButtons=document.querySelectorAll(".nav-btn");
+const tabContents=document.querySelectorAll(".tab-content");
+const amountInput=document.getElementById("amountInput");
+const addFundsBtn=document.getElementById("addFundsBtn");
+const transactionsList=document.getElementById("transactions");
+const chatInput=document.getElementById("chatInput");
+const chatSend=document.getElementById("chatSend");
+const irisChat=document.getElementById("irisChat");
+let balance=0;
+const users={};
 
-// ================================
-// Transfer Modal
-// ================================
-sendMoneyBtn.addEventListener('click', () => {
-  transferModal.classList.remove('hidden');
+// Remember Me
+if(localStorage.getItem("rememberedPhone")){loginPhoneInput.value=localStorage.getItem("rememberedPhone"); rememberMe.checked=true;}
+
+// Screen switching
+goToSignUpLink.addEventListener("click",()=>{loginScreen.style.display="none"; signUpScreen.style.display="block"; loginMessage.innerText="";});
+goToLoginLink.addEventListener("click",()=>{signUpScreen.style.display="none"; loginScreen.style.display="block"; signUpMessage.innerText="";});
+
+// Show/Hide Password
+toggleLoginPassword.addEventListener("click",()=>{loginPassword.type=loginPassword.type==="password"?"text":"password"; toggleLoginPassword.textContent=toggleLoginPassword.textContent==="Show"?"Hide":"Show";});
+toggleSignUpPassword.addEventListener("click",()=>{signUpPassword.type=signUpPassword.type==="password"?"text":"password"; toggleSignUpPassword.textContent=toggleSignUpPassword.textContent==="Show"?"Hide":"Show";});
+
+// Sign-Up
+signUpForm.addEventListener("submit",e=>{
+e.preventDefault();
+const phone=document.getElementById("signUpPhone").value.trim();
+const password=signUpPassword.value;
+if(!phone||!password){signUpMessage.innerText="Please enter phone and password."; return;}
+if(users[phone]){signUpMessage.innerText="Phone already exists."; return;}
+users[phone]={password:password};
+signUpMessage.innerText="Account created! You can login.";
 });
 
-closeModal.addEventListener('click', () => {
-  transferModal.classList.add('hidden');
+// Login
+loginForm.addEventListener("submit",e=>{
+e.preventDefault();
+const phone=loginPhoneInput.value.trim();
+const password=loginPassword.value;
+if(!phone||!password){loginMessage.innerText="Enter phone and password."; return;}
+if(users[phone]&&users[phone].password===password){
+loginMessage.innerText="Login successful!";
+loginScreen.style.display="none"; signUpScreen.style.display="none"; appScreen.style.display="block";
+if(rememberMe.checked) localStorage.setItem("rememberedPhone",phone); else localStorage.removeItem("rememberedPhone");
+} else {loginMessage.innerText="Invalid phone or password.";}
 });
 
-// ================================
-// Confirm Send
-// ================================
-confirmSend.addEventListener('click', () => {
-  const recipient = document.getElementById('recipientName').value;
-  const amount = parseFloat(document.getElementById('amount').value);
-  const note = document.getElementById('note').value;
+// Navigation
+navButtons.forEach(btn=>{btn.addEventListener("click",()=>{navButtons.forEach(b=>b.classList.remove("active")); btn.classList.add("active"); tabContents.forEach(tab=>tab.classList.remove("active")); document.getElementById(btn.dataset.tab).classList.add("active");});});
 
-  if(!recipient  !amount  amount <= 0){
-    alert('Fill all fields correctly');
-    if(soundEnabled) errorSound.play();
-    return;
-  }
-
-  balance -= amount;
-  balanceEl.textContent = ₦${balance.toLocaleString()}.00;
-
-  const txn = {
-    recipient,
-    amount,
-    note,
-    date: new Date().toLocaleString(),
-    status: 'Success'
-  };
-
-  transactions.unshift(txn);
-  renderTransactions();
-  transferModal.classList.add('hidden');
-
-  if(soundEnabled) successSound.play();
-
-  document.getElementById('recipientName').value = '';
-  document.getElementById('amount').value = '';
-  document.getElementById('note').value = '';
+// Wallet - add funds
+addFundsBtn.addEventListener("click",()=>{
+const amount=parseFloat(amountInput.value);
+if(!amount||amount<=0){alert("Enter a valid amount."); return;}
+balance+=amount;
+transactionsList.innerHTML+=<li>Added ₦${amount.toFixed(2)}</li>;
+amountInput.value="";
 });
 
-// ================================
-// Render Transactions
-// ================================
-function renderTransactions(){
-  transactionsDiv.innerHTML = '';
-  transactions.forEach((t, index) => {
-    const div = document.createElement('div');
-    div.classList.add('transaction-card');
-    div.innerHTML = 
-      <p><strong>${t.recipient}</strong></p>
-      <p>₦${t.amount.toLocaleString()}</p>
-      <p>${t.date}</p>
-    ;
-    div.addEventListener('click', () => showTransactionDetails(t));
-    transactionsDiv.appendChild(div);
-  });
-}
 
-// ================================
-// Transaction Details Page
-// ================================
-function showTransactionDetails(txn){
-  tdRecipient.textContent = txn.recipient;
-  tdAmount.textContent = ₦${txn.amount.toLocaleString()};
-  tdDate.textContent = txn.date;
-  tdNote.textContent = txn.note || '—';
-  tdStatus.textContent = txn.status;
-  tdStatus.className = txn.status === 'Success' ? 'status-success' : 'status-failed';
-
-  screens.dashboard.classList.add('hidden');
-  screens.transactionDetails.classList.remove('hidden');
-}
-
-backToWallet.addEventListener('click', () => {
-  screens.transactionDetails.classList.add('hidden');
-  screens.dashboard.classList.remove('hidden');
+// IRIS Assistant chat
+chatSend.addEventListener("click",()=>{
+const msg=chatInput.value.trim();
+if(!msg) return;
+irisChat.innerHTML+=<div class="chat-message chat-user">You: ${msg}</div>;
+chatInput.value="";
+setTimeout(()=>{
+let reply="IRIS Assistant: I'm here to help you!";
+if(msg.toLowerCase().includes("balance")) reply=IRIS Assistant: Your balance is ₦${balance.toFixed(2)};
+irisChat.innerHTML+=<div class="chat-message chat-bot">${reply}</div>;
+irisChat.scrollTop=irisChat.scrollHeight;
+},500);
 });
-
-// ================================
-// OTP Verification
-// ================================
-otpBoxes.forEach(box => {
-  box.addEventListener('keyup', () => {
-    if(collectOTP().length === 6){
-      if(collectOTP() === generatedOTP){
-        screens.otp.classList.add('hidden');
-        screens.dashboard.classList.remove('hidden');
-        if(soundEnabled) successSound.play();
-      } else {
-        if(soundEnabled) errorSound.play();
-      }
-    }
-  });
-});
-
-// ================================
-// CSV Export
-// ================================
-document.getElementById('exportCsv').addEventListener('click', () => {
-  if(transactions.length === 0){
-    alert('No transactions to export!');
-    return;
-  }
-  let csvContent = "data:text/csv;charset=utf-8,Recipient,Amount,Date,Note,Status\n";
-  transactions.forEach(t => {
-    csvContent += ${t.recipient},${t.amount},${t.date},${t.note || ''},${t.status}\n;
-  });
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "IRIS_PAY_Transactions.csv");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
 });
