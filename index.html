@@ -1,109 +1,78 @@
-<!-- Main App Screen -->
-  <div id="appScreen" style="display:none;">
-    <div class="nav-bar">
-      <button class="nav-btn active" data-tab="walletTab">Wallet</button>
-      <button class="nav-btn" data-tab="cardTab">Card</button>
-      <button class="nav-btn" data-tab="moreTab">More</button>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IRIS PAY</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>IRIS PAY</header>
 
-    <div id="walletTab" class="tab-content active">
-      <h2>Wallet</h2>
-      <p>Balance: ₦0</p>
-      <input type="text" id="amountInput" placeholder="Enter amount to add">
-      <button id="addFundsBtn">Add Funds</button>
-      <ul id="transactions" class="transactions-list"></ul>
-    </div>
-
-    <div id="cardTab" class="tab-content">
-      <h2>Card</h2>
-      <p>Virtual card and details coming soon!</p>
-    </div>
-
-    <div id="moreTab" class="tab-content">
-      <h2>More</h2>
-      <h3>IRIS Assistant</h3>
-      <div id="irisChat"></div>
-      <input type="text" id="chatInput" placeholder="Type your message">
-      <button id="chatSend">Send</button>
-      <a href="https://wa.me/2348147449565" target="_blank" class="service-link">Merchant Customer Service</a>
-    </div>
+<!-- Login Screen -->
+<div id="loginScreen" class="screen">
+<h2>Login</h2>
+<form id="loginForm">
+  <input type="text" id="loginPhone" placeholder="Phone Number">
+  <div style="position:relative;">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <span class="show-password" id="toggleLoginPassword">Show</span>
   </div>
+  <div class="extra-options">
+    <label><input type="checkbox" id="rememberMe"> Remember Me</label>
+  </div>
+  <button type="submit">Login</button>
+</form>
+<div id="loginMessage" class="message"></div>
+<span class="switch-link" id="goToSignUp">Don't have an account? Sign Up</span>
+</div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const loginScreen = document.getElementById("loginScreen");
-      const signUpScreen = document.getElementById("signUpScreen");
-      const appScreen = document.getElementById("appScreen");
-      const goToSignUpLink = document.getElementById("goToSignUp");
-      const goToLoginLink = document.getElementById("goToLogin");
-      const loginForm = document.getElementById("loginForm");
-      const signUpForm = document.getElementById("signUpForm");
-      const loginMessage = document.getElementById("loginMessage");
-      const signUpMessage = document.getElementById("signUpMessage");
-      const loginPhoneInput = document.getElementById("loginPhone");
-      const rememberMe = document.getElementById("rememberMe");
-      const loginPassword = document.getElementById("loginPassword");
-      const toggleLoginPassword = document.getElementById("toggleLoginPassword");
-      const signUpPassword = document.getElementById("signUpPassword");
-      const toggleSignUpPassword = document.getElementById("toggleSignUpPassword");
-      const navButtons = document.querySelectorAll(".nav-btn");
-      const tabContents = document.querySelectorAll(".tab-content");
-      const amountInput = document.getElementById("amountInput");
-      const addFundsBtn = document.getElementById("addFundsBtn");
-      const transactionsList = document.getElementById("transactions");
-      const chatInput = document.getElementById("chatInput");
-      const chatSend = document.getElementById("chatSend");
-      const irisChat = document.getElementById("irisChat");
-      let balance = 0;
-      const users = {};
+<!-- Sign-Up Screen -->
+<div id="signUpScreen" class="screen" style="display:none;">
+<h2>Sign Up</h2>
+<form id="signUpForm">
+  <input type="text" id="signUpPhone" placeholder="Phone Number">
+  <div style="position:relative;">
+    <input type="password" id="signUpPassword" placeholder="Password">
+    <span class="show-password" id="toggleSignUpPassword">Show</span>
+  </div>
+  <button type="submit">Sign Up</button>
+</form>
+<div id="signUpMessage" class="message"></div>
+<span class="switch-link" id="goToLogin">Already have an account? Login</span>
+</div>
 
-      // Remember Me
-      if(localStorage.getItem("rememberedPhone")) {
-        loginPhoneInput.value = localStorage.getItem("rememberedPhone");
-        rememberMe.checked = true;
-      }
+<!-- Main App Screen -->
+<div id="appScreen" style="display:none;">
+<div class="nav-bar">
+  <button class="nav-btn active" data-tab="walletTab">Wallet</button>
+  <button class="nav-btn" data-tab="cardTab">Card</button>
+  <button class="nav-btn" data-tab="moreTab">More</button>
+</div>
 
-      // Screen switching
-      goToSignUpLink.addEventListener("click", () => { loginScreen.style.display="none"; signUpScreen.style.display="block"; loginMessage.innerText=""; });
-      goToLoginLink.addEventListener("click", () => { signUpScreen.style.display="none"; loginScreen.style.display="block"; signUpMessage.innerText=""; });
+<div id="walletTab" class="tab-content active">
+<h2>Wallet</h2>
+<p>Balance: ₦0</p>
+<input type="text" id="amountInput" placeholder="Enter amount to add">
+<button id="addFundsBtn">Add Funds</button>
+<ul id="transactions" class="transactions-list"></ul>
+</div>
 
-      // Show/Hide Password
-      toggleLoginPassword.addEventListener("click", () => { loginPassword.type = loginPassword.type==="password"?"text":"password"; toggleLoginPassword.textContent = toggleLoginPassword.textContent==="Show"?"Hide":"Show"; });
-      toggleSignUpPassword.addEventListener("click", () => { signUpPassword.type = signUpPassword.type==="password"?"text":"password"; toggleSignUpPassword.textContent = toggleSignUpPassword.textContent==="Show"?"Hide":"Show"; });
+<div id="cardTab" class="tab-content">
+<h2>Card</h2>
+<p>Virtual card and details coming soon!</p>
+</div>
 
-      // Sign-Up
+<div id="moreTab" class="tab-content">
+<h2>More</h2>
+<h3>IRIS Assistant</h3>
+<div id="irisChat"></div>
+<input type="text" id="chatInput" placeholder="Type your message">
+<button id="chatSend">Send</button>
+<a href="https://wa.me/2348147449565" target="_blank" class="service-link">Merchant Customer Service</a>
+</div>
+</div>
 
-
-signUpForm.addEventListener("submit", e => {
-        e.preventDefault();
-        const phone = document.getElementById("signUpPhone").value.trim();
-        const password = signUpPassword.value;
-        if(!phone || !password){ signUpMessage.innerText="Please enter phone and password."; return; }
-        if(users[phone]){ signUpMessage.innerText="Phone already exists."; return; }
-        users[phone]={password:password};
-        signUpMessage.innerText="Account created! You can login.";
-      });
-
-      // Login
-      loginForm.addEventListener("submit", e => {
-        e.preventDefault();
-        const phone = loginPhoneInput.value.trim();
-        const password = loginPassword.value;
-        if(!phone || !password){ loginMessage.innerText="Enter phone and password."; return; }
-        if(users[phone] && users[phone].password===password){
-          loginMessage.innerText="Login successful!";
-          loginScreen.style.display="none";
-          signUpScreen.style.display="none";
-          appScreen.style.display="block";
-          if(rememberMe.checked) localStorage.setItem("rememberedPhone",phone); else localStorage.removeItem("rememberedPhone");
-        } else { loginMessage.innerText="Invalid phone or password."; }
-      });
-
-      // Navigation
-      navButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-          navButtons.forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          tabContents.forEach(tab => tab.classList.remove("active"));
-          document.getElementById(btn.dataset.tab).classList.add("active");
-        });
+<script src="script.js"></script>
+</body>
+</html>
